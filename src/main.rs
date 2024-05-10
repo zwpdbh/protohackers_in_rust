@@ -3,6 +3,7 @@ mod protohacker;
 
 use clap::Parser;
 use command_line::*;
+use tracing::info;
 
 #[tokio::main()]
 async fn main() {
@@ -13,18 +14,18 @@ async fn main() {
             let _ = protohacker::ch0_echo_service::server_run(port).await;
         }
         SubCommand::Ex01 { id } => {
-            println!("id: {}", id)
+            info!("id: {}", id)
         }
         SubCommand::Ex02 { case } => match case {
             ExCase::Case01 { name } => {
-                println!("name: {}", name)
+                info!("name: {}", name)
             }
             ExCase::Case02 => {
-                println!("case02")
+                info!("case02")
             }
         },
         SubCommand::Ex03 { case: _case } => {
-            println!("use ValueEnum trait is useful")
+            info!("use ValueEnum trait is useful")
         }
     }
 }
