@@ -13,6 +13,9 @@ async fn main() {
         SubCommand::Ch0Server { port } => {
             let _ = protohacker::ch0_echo_service::server_run(port).await;
         }
+        SubCommand::Ch0Client { port } => {
+            let _ = protohacker::ch0_echo_service::client_run(port).await;
+        }
         SubCommand::Ex01 { id } => {
             info!("id: {}", id)
         }

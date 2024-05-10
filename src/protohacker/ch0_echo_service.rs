@@ -26,12 +26,10 @@ pub async fn server_run(port: u32) {
     }
 }
 
-#[allow(unused)]
 pub async fn client_run(port: u32) -> Result<(), Box<dyn Error>> {
     let mut stream = TcpStream::connect(format!("127.0.0.1:{}", port)).await?;
     info!("stream starting");
     stream.write_all(b"hello world").await?;
     info!("stream finished");
-
     Ok(())
 }
