@@ -13,6 +13,10 @@ pub enum SubCommand {
         #[arg(long)]
         port: u32,
     },
+    Ch0Client {
+        #[arg(long)]
+        port: u32,
+    },
     Ex01 {
         #[arg(short, long)]
         id: String,
