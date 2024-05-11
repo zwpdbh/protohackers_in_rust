@@ -1,5 +1,6 @@
+mod client;
 mod command_line;
-mod protohacker;
+mod server;
 
 use clap::Parser;
 use command_line::*;
@@ -11,10 +12,10 @@ async fn main() {
     let args = Arguments::parse();
     match args.cmd {
         SubCommand::Ch0Server { port } => {
-            let _ = protohacker::ch0_echo_service::server_run(port).await;
+            let _ = server::ch0_echo::server_run(port).await;
         }
         SubCommand::Ch0Client { port } => {
-            let _ = protohacker::ch0_echo_service::client_run(port).await;
+            let _ = client::client_run_v2(port).await;
         }
         SubCommand::Ex01 { id } => {
             info!("id: {}", id)
