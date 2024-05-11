@@ -7,15 +7,28 @@ pub struct Arguments {
     pub cmd: SubCommand,
 }
 
+#[derive(Debug, Clone, Copy, ValueEnum)]
+pub enum ServerVersion {
+    V1,
+    V2,
+}
+
+#[derive(Debug, Clone, Copy, ValueEnum)]
+pub enum ClientVersion {
+    V1,
+}
+
 #[derive(Subcommand, Debug, Clone)]
 pub enum SubCommand {
     Ch0Server {
         #[arg(long)]
         port: u32,
+        version: ServerVersion,
     },
     Ch0Client {
         #[arg(long)]
         port: u32,
+        version: ClientVersion,
     },
     Ex01 {
         #[arg(short, long)]

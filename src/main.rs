@@ -11,11 +11,11 @@ async fn main() {
     let _ = setup_simple_tracing();
     let args = Arguments::parse();
     match args.cmd {
-        SubCommand::Ch0Server { port } => {
-            let _ = server::ch0_echo::server_run(port).await;
+        SubCommand::Ch0Server { port, version } => {
+            let _ = server::ch0_echo::server_run(port, version).await;
         }
-        SubCommand::Ch0Client { port } => {
-            let _ = client::client_run_v2(port).await;
+        SubCommand::Ch0Client { port, version } => {
+            let _ = client::client_run(port, version).await;
         }
         SubCommand::Ex01 { id } => {
             info!("id: {}", id)

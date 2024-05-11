@@ -1,37 +1,41 @@
 use std::error::Error;
-use tokio::io::AsyncBufReadExt;
-use tokio::io::AsyncWriteExt;
-use tokio::io::BufReader;
-use tokio::net::TcpStream;
+use std::io::{Read, Write};
+use std::net::TcpStream;
+use std::str::from_utf8;
 use tracing::info;
 
-#[allow(unused)]
-pub async fn client_run_v1(port: u32) -> Result<(), Box<dyn Error>> {
-    let mut stream = TcpStream::connect(format!("127.0.0.1:{}", port)).await?;
-    info!("stream starting");
-    stream.write_all(b"hello world").await?;
-    info!("stream finished");
+use crate::ClientVersion;
 
-    Ok(())
+pub async fn client_run(port: u32, v: ClientVersion) -> Result<(), Box<dyn Error>> {
+    match v {
+        ClientVersion::V1 => client_v1(port).await,
+    }
 }
 
-#[allow(unused)]
-pub async fn client_run_v2(port: u32) -> Result<(), Box<dyn Error>> {
-    let mut stream = TcpStream::connect(format!("127.0.0.1:{}", port)).await?;
-    info!("stream starting");
-    stream.write_all(b"hello world").await?;
-    info!("stream finished");
+pub async fn client_v1(port: u32) -> Result<(), Box<dyn Error>> {
+    match TcpStream::connect(format!("127.0.0.1:{}", port)) {
+        Ok(mut stream) => {
+            println!("stream starting");
+            let _ = stream.write_all(b"hello world");
+            println!("stream finished");
 
-    // Flush the stream to ensure the message is sent immediately
-    let _ = stream.flush();
+            info!("Sent Hello, awaiting reply...");
 
-    // Read the response from the server
-    let mut reader = BufReader::new(&mut stream);
-    let mut response = String::new();
-    let _ = reader.read_line(&mut response);
-
-    // Print the response from the server
-    info!("Response from server: {}", response);
-
+            let mut buffer = Vec::new();
+            match stream.read_to_end(&mut buffer) {
+                Ok(_) => {
+                    let text = from_utf8(&buffer).unwrap();
+                    info!("reply: {}", text);
+                }
+                Err(e) => {
+                    info!("Failed to receive data: {}", e);
+                }
+            }
+        }
+        Err(e) => {
+            info!("Failed to connect: {}", e);
+        }
+    }
+    info!("Terminated.");
     Ok(())
 }
