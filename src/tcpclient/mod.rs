@@ -35,16 +35,17 @@ pub async fn client_v2(port: u32) -> Result<(), Box<dyn Error>> {
     match TcpStream::connect(format!("127.0.0.1:{}", port)) {
         Ok(mut stream) => {
             info!("stream starting");
-            let _ = stream.write_all("Hello World\n".as_bytes()).unwrap();
+            let _ = stream.write_all("Hello World1".as_bytes()).unwrap();
+            let _ = stream.write_all("Hello World2".as_bytes()).unwrap();
             let _ = stream.flush();
 
             info!("send message finished, awaiting reply...");
 
-            let mut buffer = Vec::new();
-            match stream.read_to_end(&mut buffer) {
-                Ok(_) => {
+            let mut buffer = vec![0; 1024];
+            match stream.read(&mut buffer) {
+                Ok(n) => {
                     let text = str::from_utf8(&buffer).unwrap();
-                    info!("reply: {}", text);
+                    info!("{} bytes are read, content: {}", n, text);
                 }
                 Err(e) => {
                     info!("Failed to receive data: {}", e);
