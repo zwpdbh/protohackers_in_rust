@@ -9,13 +9,14 @@ pub struct Arguments {
 
 #[derive(Debug, Clone, Copy, ValueEnum)]
 pub enum ServerVersion {
-    V1,
-    V2,
+    EchoV1,
+    EchoV2,
 }
 
 #[derive(Debug, Clone, Copy, ValueEnum)]
 pub enum ClientVersion {
     V1,
+    V2,
 }
 
 #[derive(Subcommand, Debug, Clone)]
