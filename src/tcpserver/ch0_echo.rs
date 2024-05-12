@@ -7,9 +7,11 @@ use tokio::io::BufReader;
 use tokio::net::TcpListener;
 use tokio::net::TcpStream;
 use tokio_util::codec::{BytesCodec, Framed};
-use tracing::info;
+use tracing::{info, span, Level};
 
-pub async fn server_run(port: u32) {
+use crate::ServerVersion;
+
+pub async fn server_run(port: u32, v: ServerVersion) {
     let addr = format!("127.0.0.1:{}", port);
 
     let listener = TcpListener::bind(&addr).await.unwrap();
@@ -17,13 +19,25 @@ pub async fn server_run(port: u32) {
 
     while let Ok((stream, peer)) = listener.accept().await {
         info!("Incoming connection from: {}", peer);
+
         tokio::spawn(async move {
-            let () = handle_connection(stream, peer).await;
+            match v {
+                ServerVersion::EchoV1 => {
+                    let () = handle_connection_v1(stream, peer).await;
+                }
+                ServerVersion::EchoV2 => {
+                    let () = handle_connection_v2(stream, peer).await;
+                }
+            }
         });
     }
 }
 
-async fn handle_connection(mut stream: TcpStream, peer: SocketAddr) {
+/// This handles the tcp frame by simply using '\n'.
+async fn handle_connection_v1(mut stream: TcpStream, peer: SocketAddr) {
+    let span = span!(Level::INFO, "handle_connection");
+    let _enter = span.enter();
+
     let begin = time::Instant::now();
     info!("thread starting {} starting", peer);
 
@@ -33,7 +47,8 @@ async fn handle_connection(mut stream: TcpStream, peer: SocketAddr) {
     let mut buf = vec![];
 
     loop {
-        // continuously read one line at a time
+        // Continuously read one line at a time:
+        // This means if the content sent from client doesn't contains `\n`, the code will block to wait.
         match buf_reader.read_until(b'\n', &mut buf).await {
             Ok(n) => {
                 // telling the reader to stop reading once it hits the EOF condition.
@@ -60,8 +75,11 @@ async fn handle_connection(mut stream: TcpStream, peer: SocketAddr) {
     info!("thread {} finising {}", peer, end.as_secs_f32());
 }
 
-#[allow(unused)]
+/// This handles frame using existing library: tokio_util::codec::framed
 async fn handle_connection_v2(stream: TcpStream, peer: SocketAddr) {
+    let span = span!(Level::INFO, "handle_connection");
+    let _enter = span.enter();
+
     let begin = time::Instant::now();
     info!("thread starting {} starting", peer);
 

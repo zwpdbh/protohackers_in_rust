@@ -1,6 +1,6 @@
-mod client;
 mod command_line;
-mod server;
+mod tcpclient;
+mod tcpserver;
 
 use clap::Parser;
 use command_line::*;
@@ -11,11 +11,11 @@ async fn main() {
     let _ = setup_simple_tracing();
     let args = Arguments::parse();
     match args.cmd {
-        SubCommand::Ch0Server { port } => {
-            let _ = server::ch0_echo::server_run(port).await;
+        SubCommand::Ch0Server { port, version } => {
+            let _ = tcpserver::ch0_echo::server_run(port, version).await;
         }
-        SubCommand::Ch0Client { port } => {
-            let _ = client::client_run_v2(port).await;
+        SubCommand::Ch0Client { port, version } => {
+            let _ = tcpclient::client_run(port, version).await;
         }
         SubCommand::Ex01 { id } => {
             info!("id: {}", id)
